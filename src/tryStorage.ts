@@ -133,7 +133,7 @@ async function performWrites(context: TestContext): Promise<void> {
 
             if (chunkWriteYield.done) {
                 // Ran out of storage.
-                return;
+                return resolve();
             }
 
             const { chunk, duration } = chunkWriteYield.value;
