@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "strict": true,
+        "module": "commonjs",
+        "rootDir": "src",
+        "outDir": "build",
+        "importHelpers": true,
+        "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true,
+        "target": "ES2019"
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules"]
+}

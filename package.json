@@ -1,0 +1,43 @@
+{
+    "name": "@xch/try-storage",
+    "version": "0.0.1",
+    "description": "CLI tool for testing storage capacity and capabilities.",
+    "author": "Xingchen Hong <hello@xc-h.com>",
+    "bin": {
+        "try-storage": "bin/cli"
+    },
+    "engines": {
+        "node": ">=12.0.0"
+    },
+    "scripts": {
+        "lint": "eslint .",
+        "format": "prettier --write '**/*.{js,ts,tsx,json}'",
+        "compile": "tsc -p .",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "license": "MIT",
+    "prettier": "@xch/prettier-config",
+    "devDependencies": {
+        "@types/cli-progress": "^3.9.2",
+        "@types/faker": "^5.5.7",
+        "@types/yargs": "^17.0.2",
+        "@typescript-eslint/eslint-plugin": "^4.28.0",
+        "@typescript-eslint/parser": "^4.28.0",
+        "@xch/prettier-config": "npm:my-prettier-config@0.0.1",
+        "eslint": "^7.29.0",
+        "eslint-config-prettier": "^8.3.0",
+        "eslint-plugin-node": "^11.1.0",
+        "prettier": "2.3.2",
+        "ts-node": "^10.0.0",
+        "typescript": "^4.3.4"
+    },
+    "dependencies": {
+        "check-disk-space": "^3.0.1",
+        "cli-progress": "^3.9.0",
+        "faker": "^5.5.3",
+        "hasha": "^5.2.2",
+        "pretty-bytes": "^5.6.0",
+        "tslib": "^1.14.1",
+        "yargs": "^17.0.1"
+    }
+}
