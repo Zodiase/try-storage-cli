@@ -1,5 +1,6 @@
 import { datatype, random } from 'faker';
 import hasha from 'hasha';
+import { MegaBytes } from './constants';
 
 export interface ChunkMeta {
     name: string;
@@ -31,7 +32,7 @@ export function createChunk(name: string, data: Buffer): Chunk {
 
 export function* getChunkGenerator(sizeInMb: number): IterableIterator<Chunk> {
     // Prepare phrases to generate a chunk quickly. Each phrase is 1mb.
-    const phrases = Array.from({ length: sizeInMb }).map(() => random.alphaNumeric(1000000));
+    const phrases = Array.from({ length: sizeInMb }).map(() => random.alphaNumeric(MegaBytes));
 
     while (true) {
         const chunkName = `r-${datatype.uuid()}`;

@@ -6,6 +6,7 @@ import { performance } from 'perf_hooks';
 import prettyBytes from 'pretty-bytes';
 import assertTestFolder from './assertTestFolder';
 import { ChunkMeta, createChunk, getChunkGenerator } from './Chunk';
+import { MaxChunkSize, MegaBytes } from './constants';
 import repeatUntilReturn from './repeatUntilReturn';
 import ScoreCard from './ScoreCard';
 import SideEffects from './sideEffects';
@@ -50,6 +51,10 @@ export default async function tryStorage(options: TryStorageOptions): Promise<vo
 function preFlightCheck({ path, chunkSize, maxChunks }: TryStorageOptions): void {
     if (chunkSize <= 0) {
         throw new Error('chunk size must be positive');
+    }
+
+    if (chunkSize > MaxChunkSize) {
+        throw new Error(`chunk size must not exceed ${prettyBytes(MaxChunkSize * MegaBytes)}`);
     }
 
     if (maxChunks <= 0) {
