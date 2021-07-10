@@ -6,6 +6,7 @@ import { performance } from 'perf_hooks';
 import prettyBytes from 'pretty-bytes';
 import assertTestFolder from './assertTestFolder';
 import { ChunkMeta, createChunk, getChunkGenerator } from './Chunk';
+import loopTilResult from './loopTilResult';
 import ScoreCard from './ScoreCard';
 import SideEffects from './sideEffects';
 
@@ -120,20 +121,31 @@ async function performWrites(context: TestContext): Promise<void> {
 
     // Write asynchronously until the space is used up or the total amount of chunks have been written.
     // Being asynchronous allows the process to be interrupted.
-    await new Promise<void>((resolve) => {
+    await new Promise<true>((resolve, reject) => {
+        const workToResolve = loopTilResult<true>((error, result?) =>
+            error !== null ? reject(error) : resolve(result as true)
+        );
         const chunkWriter = getChunkWriter(context);
         let remainingChunksToWrite = totalChunksToWrite;
 
-        const writeNextChunk = () => {
+        /**
+         * Attempt to write the next chunk.
+         * Returns anything to indicate the end.
+         * If aborting, immediately return true.
+         * If there is no remaining chunks to write, return true.
+         * If write fails (e.g. out-of-space), return true.
+         * Otherwise return nothing.
+         */
+        workToResolve((): void | true => {
             if (abortWrites || remainingChunksToWrite <= 0) {
-                return resolve();
+                return true;
             }
 
             const chunkWriteYield = chunkWriter.next();
 
             if (chunkWriteYield.done) {
                 // Ran out of storage.
-                return resolve();
+                return true;
             }
 
             const { chunk, duration } = chunkWriteYield.value;
@@ -144,11 +156,7 @@ async function performWrites(context: TestContext): Promise<void> {
             writeProgress.increment({
                 speed: `${prettyBytes(report.writeSpeed)}/s`,
             });
-
-            setTimeout(writeNextChunk);
-        };
-
-        writeNextChunk();
+        });
     });
 
     sideEffects.cleanup();
@@ -244,19 +252,29 @@ async function performReads(context: TestContext): Promise<void> {
 
     // Read asynchronously until all the written chunks have been read.
     // Being asynchronous allows the process to be interrupted.
-    await new Promise<void>((resolve) => {
+    await new Promise<true>((resolve, reject) => {
+        const workToResolve = loopTilResult<true>((error, result?) =>
+            error !== null ? reject(error) : resolve(result as true)
+        );
         const chunkReader = getChunkReader(context);
 
-        const readNextChunk = () => {
+        /**
+         * Attempt to read the next chunk.
+         * Returns anything to indicate the end.
+         * If aborting, immediately return true.
+         * If there is no remaining chunks to read, return true.
+         * Otherwise return nothing.
+         */
+        workToResolve(() => {
             if (abortReads) {
-                return resolve();
+                return true;
             }
 
             const chunkReadYield = chunkReader.next();
 
             if (chunkReadYield.done) {
                 // All read.
-                return resolve();
+                return true;
             }
 
             const { chunk, duration } = chunkReadYield.value;
@@ -266,11 +284,7 @@ async function performReads(context: TestContext): Promise<void> {
             readProgress.increment({
                 speed: `${prettyBytes(report.readSpeed)}/s`,
             });
-
-            setTimeout(readNextChunk);
-        };
-
-        readNextChunk();
+        });
     });
 
     sideEffects.cleanup();
