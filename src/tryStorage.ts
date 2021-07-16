@@ -78,11 +78,11 @@ async function performWrites(context: TestContext): Promise<void> {
 
     const diskSpace = await checkDiskSpace(path);
     // `diskSpace.free` is in bytes.
-    const availableMegaBytes = diskSpace.free / (1000 * 1000);
+    const availableMegaBytes = diskSpace.free / MegaBytes;
     const totalChunksToWrite = Math.min(Math.ceil(availableMegaBytes / chunkSize), maxChunks);
     const writeProgress = new SingleBar(
         {
-            format: 'Writes: {bar} {percentage}% | Speed: {speed} | ETA: {eta_formatted} | {value}/{total} {abort}',
+            format: 'Writes: {written} | Speed: {speed} | Chunks: {value}/{total} | ETA: {eta_formatted} {abort}',
             stopOnComplete: false,
             clearOnComplete: false,
             align: 'left',
@@ -93,6 +93,7 @@ async function performWrites(context: TestContext): Promise<void> {
     const sideEffects = new SideEffects();
 
     writeProgress.start(totalChunksToWrite, 0, {
+        written: prettyBytes(0),
         speed: 'N/A',
         abort: '',
     });
@@ -146,6 +147,7 @@ async function performWrites(context: TestContext): Promise<void> {
         remainingChunksToWrite--;
 
         writeProgress.increment({
+            written: prettyBytes(report.totalBytesWritten),
             speed: `${prettyBytes(report.writeSpeed)}/s`,
         });
     });
@@ -199,7 +201,7 @@ async function performReads(context: TestContext): Promise<void> {
     const totalChunksToRead = scoreCard.report().chunks;
     const readProgress = new SingleBar(
         {
-            format: 'Reads : {bar} {percentage}% | Speed: {speed} | ETA: {eta_formatted} | {value}/{total} {abort}',
+            format: 'Reads : {read} | Speed: {speed} | Chunks: {value}/{total} | ETA: {eta_formatted} {abort}',
             stopOnComplete: false,
             clearOnComplete: false,
             align: 'left',
@@ -210,6 +212,7 @@ async function performReads(context: TestContext): Promise<void> {
     const sideEffects = new SideEffects();
 
     readProgress.start(totalChunksToRead, 0, {
+        read: prettyBytes(0),
         speed: 'N/A',
         abort: '',
     });
@@ -261,6 +264,7 @@ async function performReads(context: TestContext): Promise<void> {
         const report = scoreCard.addChunkRead(chunk, duration);
 
         readProgress.increment({
+            read: prettyBytes(report.totalBytesRead),
             speed: `${prettyBytes(report.readSpeed)}/s`,
         });
     });
@@ -293,7 +297,7 @@ async function performCleanup(context: TestContext): Promise<void> {
     const totalChunksToClean = scoreCard.report().chunks;
     const cleanProgress = new SingleBar(
         {
-            format: 'Clean : {bar} {percentage}% | {value}/{total}',
+            format: 'Clean : {value}/{total}',
             stopOnComplete: false,
             clearOnComplete: false,
             align: 'left',
