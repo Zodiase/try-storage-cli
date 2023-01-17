@@ -25,7 +25,7 @@
         "@types/yargs": "^17.0.2",
         "@typescript-eslint/eslint-plugin": "^4.28.0",
         "@typescript-eslint/parser": "^4.28.0",
-        "@xch/prettier-config": "npm:my-prettier-config@0.0.1",
+        "@xch/prettier-config": "0.0.1",
         "eslint": "^7.29.0",
         "eslint-config-prettier": "^8.3.0",
         "eslint-plugin-node": "^11.1.0",
